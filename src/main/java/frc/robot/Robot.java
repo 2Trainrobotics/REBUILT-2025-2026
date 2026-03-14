@@ -74,13 +74,13 @@ public class Robot extends TimedRobot {
    *   Right Stick: Rotation
    *   D-Pad Up: Lift Intake
    *   D-Pad Down: Lower Intake
-   *   D-Pad Left: Spin Intake Forward
+   *   Y Button: Spin Intake Forward
 * Operator Controller:
    *   A Button: Shoot
    *   B Button:  Feeder/Pulley
    *   D-Pad Up: Lift Intake
    *   D-Pad Down: Lower Intake
-   *   D-Pad Left: Spin Intake Forward
+   *   Y Button: Spin Intake Forward
    */
 
   /** Called once at the beginning of the robot program. */
@@ -208,12 +208,12 @@ public class Robot extends TimedRobot {
     }
 
     // 2.b. Intake spinner:
-    //   driver controller, D-Pad Left
-    //   operator controller, D-Pad Left
-    if (driverController.getPOV() == 90) {
+    //   driver controller, Y button
+    //   operator controller, Y button
+    if (driverController.getYButton()) {
       // Engage spinner motor
       intakeSpinnerMotor.set(0.5);
-    } else if (operatorController.getPOV() == 90) {
+    } else if (operatorController.getYButton()) {
       // Engage spinner motor
       intakeSpinnerMotor.set(0.5);
     } else {
