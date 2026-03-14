@@ -8,6 +8,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
 
@@ -37,39 +40,130 @@ public class Robot extends TimedRobot {
   private final SparkFlex leftShooterMotor = new SparkFlex(Constants.DriveConstants.kLeftShooterCanId, MotorType.kBrushless);
   private final SparkFlex rightShooterMotor = new SparkFlex(Constants.DriveConstants.kRightShooterCanId, MotorType.kBrushless);
 
-  // private final SparkMax leftPulleyMotor = new SparkMax(Constants.DriveConstants.kLeftPulleyCanId, MotorType.kBrushless);
-  // private final SparkMax rightPulleyMotor = new SparkMax(Constants.DriveConstants.kRightPulleyCanId, MotorType.kBrushless);
+  private final SparkMax leftFeederMotor = new SparkMax(Constants.DriveConstants.kLeftFeederCanId, MotorType.kBrushless);
+  private final SparkMax rightFeederMotor = new SparkMax(Constants.DriveConstants.kRightFeederCanId, MotorType.kBrushless);
 
-  // private final SparkFlex leftIntakeLifterMotor = new SparkFlex(Constants.DriveConstants.kLeftIntakeLifterCanId, MotorType.kBrushless);
-  // private final SparkFlex rightIntakeLifterMotor = new SparkFlex(Constants.DriveConstants.kRightIntakeLifterCanId, MotorType.kBrushless);
-  // private final SparkFlex intakeSpinnerMotor = new SparkFlex(Constants.DriveConstants.kIntakeSpinnerCanId, MotorType.kBrushless);
+  private final SparkMax leftIntakeLifterMotor = new SparkMax(Constants.DriveConstants.kLeftIntakeLifterCanId, MotorType.kBrushless);
+  private final SparkMax rightIntakeLifterMotor = new SparkMax(Constants.DriveConstants.kRightIntakeLifterCanId, MotorType.kBrushless);
+  private final SparkMax intakeSpinnerMotor = new SparkMax(Constants.DriveConstants.kIntakeSpinnerCanId, MotorType.kBrushless);
 
   private final XboxController driverController = new XboxController(OIConstants.kDriverControllerPort);
+  private final XboxController operatorController = new XboxController(OIConstants.kOperatorControllerPort);
   private final Timer timer = new Timer();
+
+  private static final String kDefaultAuto = "Default";
+  private static final String kStraightAuto = "Straight Auto";
+  private static final String kLeftAuto = "Left Auto";
+  private String m_autoSelected;
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
+  /*
+   * Controls for One Controller:
+   * Driver Controller:
+   *   Left Stick: Forward/Backward and Left/Right movement
+   *   Right Stick: Rotation
+   *   A Button: Shoot
+   *   B Button:  Feeder/Pulley
+   *   D-Pad Up: Lift Intake
+   *   D-Pad Down: Lower Intake
+   *   D-Pad Left: Spin Intake Forward
+   * 
+   * Controls for Two Controllers:
+   * Driver Controller:
+   *   Left Stick: Forward/Backward and Left/Right movement
+   *   Right Stick: Rotation
+   *   D-Pad Up: Lift Intake
+   *   D-Pad Down: Lower Intake
+   *   D-Pad Left: Spin Intake Forward
+* Operator Controller:
+   *   A Button: Shoot
+   *   B Button:  Feeder/Pulley
+   *   D-Pad Up: Lift Intake
+   *   D-Pad Down: Lower Intake
+   *   D-Pad Left: Spin Intake Forward
+   */
 
   /** Called once at the beginning of the robot program. */
   public Robot() {
+    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+    m_chooser.addOption("Straight Auto", kStraightAuto);
+    m_chooser.addOption("Left Auto", kLeftAuto);
+    SmartDashboard.putData("Auto choices", m_chooser);
+
     leftShooterMotor.setInverted(true);
     rightShooterMotor.setInverted(false);
+
+    leftFeederMotor.setInverted(true);
+    rightFeederMotor.setInverted(false);
+
+    leftIntakeLifterMotor.setInverted(true);
+    rightIntakeLifterMotor.setInverted(false);
   }
 
   /** This function is run once each time the robot enters autonomous mode. */
   @Override
   public void autonomousInit() {
     timer.restart();
+    m_autoSelected = m_chooser.getSelected();
+  }
+
+  public void moveStraightFor2Seconds() {
+    // Drive for 2 seconds
+    if (timer.get() < 2.0) {
+      // Drive forwards half speed, make sure to turn input squaring off
+      robotDrive.drive(0.5, 0.0, 0.0, false);
+    } else {
+      robotDrive.drive(0.0, 0.0, 0.0, false);
+    }
+  }
+
+  public void moveLeftFor2Seconds() {
+    // Drive for 2 seconds
+    if (timer.get() < 2.0) {
+      // Drive left at half speed, make sure to turn input squaring off
+      robotDrive.drive(0.0, 0.5, 0.0, false);
+    } else {
+      robotDrive.drive(0.0, 0.0, 0.0, false);
+    }
+  }
+
+  public void moveLeftFor2SecondsThenStraightFor3Seconds() {
+    // Drive for 4 seconds
+    if (timer.get() < 2.0) {
+      // Drive left at half speed, make sure to turn input squaring off
+      robotDrive.drive(0.0, 0.5, 0.0, false);
+    } else if (timer.get() < 5.0) {
+      // Drive forwards half speed, make sure to turn input squaring off
+      robotDrive.drive(0.5, 0.0, 0.0, false);
+    } else if (timer.get() < 6.0) {
+      // Drive forwards half speed, make sure to turn input squaring off
+      // leftShooterMotor.set(0.5);
+      // rightShooterMotor.set(0.5); 
+    } else {
+      robotDrive.drive(0.0, 0.0, 0.0, false);
+    }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    // Drive for 2 seconds
-    // if (timer.get() < 2.0) {
-    //   // Drive forwards half speed, make sure to turn input squaring off
-    //   robotDrive.drive(0.5, 0.0, 0.0, false);
-    // } else {
-    //   robotDrive.drive(0.0, 0.0, 0.0, false);
-    //   robotDrive.stopMotor(); // stop robot
-    // }
+    switch (m_autoSelected) {
+      case kStraightAuto:
+        moveStraightFor2Seconds();
+        break;
+      case kLeftAuto:
+        moveLeftFor2Seconds();
+        break;
+      case kDefaultAuto:
+      default:
+        moveLeftFor2SecondsThenStraightFor3Seconds();
+        break;
+    }
+  }
+
+  @Override
+  public void autonomousExit() {
+    robotDrive.drive(0.0, 0.0, 0.0, false);
   }
 
   // here we're gonna declare the Joystick Control for Teleoperation
@@ -81,15 +175,69 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
-    // double shooterPower = driverController.getLeftY();
-    // leftShooterMotor.set(shooterPower);
-    // rightShooterMotor.set(shooterPower);
-
+    // 1. Drive:  driver controller, left and right joysticks
     robotDrive.drive(
                 -MathUtil.applyDeadband(driverController.getLeftY(), OIConstants.kDriveDeadband),
                 -MathUtil.applyDeadband(driverController.getLeftX(), OIConstants.kDriveDeadband),
                 -MathUtil.applyDeadband(driverController.getRightX(), OIConstants.kDriveDeadband),
                 true);
+
+    // 2.a. Intake up/down:
+    //   driver controller, D-Pad Up/Down
+    //   operator controller, D-Pad Up/Down
+     if (driverController.getPOV() == 0) {
+      // Lift intake
+      leftIntakeLifterMotor.set(0.5);
+      rightIntakeLifterMotor.set(0.5); 
+    } else if (driverController.getPOV() == 180) {
+      // Lower intake
+      leftIntakeLifterMotor.set(-0.5);
+      rightIntakeLifterMotor.set(-0.5); 
+    } else if (operatorController.getPOV() == 0) {
+      // Lift intake
+      leftIntakeLifterMotor.set(0.5);
+      rightIntakeLifterMotor.set(0.5); 
+    } else if (operatorController.getPOV() == 180) {
+      // Lower intake
+      leftIntakeLifterMotor.set(-0.5);
+      rightIntakeLifterMotor.set(-0.5); 
+    } else {
+      // Stop intake lifter motors
+      leftIntakeLifterMotor.set(0.0);
+      rightIntakeLifterMotor.set(0.0); 
+    }
+
+    // 2.b. Intake spinner:
+    //   driver controller, D-Pad Left
+    //   operator controller, D-Pad Left
+    if (driverController.getPOV() == 90) {
+      // Engage spinner motor
+      intakeSpinnerMotor.set(0.5);
+    } else if (operatorController.getPOV() == 90) {
+      // Engage spinner motor
+      intakeSpinnerMotor.set(0.5);
+    } else {
+      // Stop spinner motor
+      intakeSpinnerMotor.set(0.0);
+    }
+
+    // 3. Shooter:  operator controller, A button
+    if (operatorController.getAButton()) {
+      leftShooterMotor.set(0.5);
+      rightShooterMotor.set(0.5); 
+    } else {
+      leftShooterMotor.set(0.0);
+      rightShooterMotor.set(0.0); 
+    }
+
+    // 4. Feeder:  operator controller, B button
+    if (operatorController.getBButton()) {
+      leftFeederMotor.set(0.5);
+      rightFeederMotor.set(0.5); 
+    } else {
+      leftFeederMotor.set(0.0);
+      rightFeederMotor.set(0.0); 
+    }
   }
 
   /** This function is called once each time the robot enters test mode. */

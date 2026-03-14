@@ -59,8 +59,8 @@ public final class Constants {
     public static final int kLeftShooterCanId = 9;
     public static final int kRightShooterCanId = 10;
 
-    public static final int kLeftPulleyCanId = 11;   // Feeder?
-    public static final int kRightPulleyCanId = 12;  // Feeder?
+    public static final int kLeftFeederCanId = 11;   // Feeder?
+    public static final int kRightFeederCanId = 12;  // Feeder?
 
     public static final int kLeftIntakeLifterCanId = 13;
     public static final int kRightIntakeLifterCanId = 14;
