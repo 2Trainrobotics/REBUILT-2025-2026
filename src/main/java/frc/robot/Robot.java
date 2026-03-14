@@ -4,14 +4,15 @@
 
 package frc.robot;
 
-// package edu.wpi.first.wpilibj.examples.gettingstarted;
-// our import are below here
-
-
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import frc.robot.Constants.OIConstants;
+import frc.robot.subsystems.DriveSubsystem;
+
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 /**
@@ -22,43 +23,52 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 // here we're going to Defining the variables for our sample robot
 
 public class Robot extends TimedRobot {
+  // Old RoboRIO Hostname:  "NI-roboRIO2-0-03249427"
   /*
    * What is on the robot:
-   * 2x Rev Robotics SPARK Flex Motor Controller + NEO Vortex Brushless Motor:  shooter
-   *   Probably CAN, probably not PWM
-   * 4x Rev Robotics ?:  swerve drive
-   * 2x Rev Robotics NEO REV-21-1650 motors:  ?
+   * Drive: 4x Swerve Modules, each with 2x Rev Robotics SPARK MAX Motor Controllers + NEO Vortex Brushless Motor + NEO 550 Motor
+   * Shooter:  2x Rev Robotics SPARK Flex Motor Controller + NEO Vortex Brushless Motor
+   * Feeder/Pulley:  2x Rev Robotics NEO REV-21-1650 motors
+   * ?Intake: 2x Rev Robotics NEO REV-21-1650 motors for lifting, 1x Rev Robotics NEO REV-21-1650 motor for spinning
+   * Controller: 1x Xbox Controller
    */
-  // Old RoboRIO Hostname:  "NI-roboRIO2-0-03249427"
-  private final SparkFlex leftShooterMotor = new SparkFlex(9, MotorType.kBrushless);
-  private final SparkFlex rightShooterMotor = new SparkFlex(10, MotorType.kBrushless);
-  private final XboxController m_controller = new XboxController(1);
-  private final Timer m_timer = new Timer();
+  private final DriveSubsystem robotDrive = new DriveSubsystem();
 
-//Robot Initialization is below
+  private final SparkFlex leftShooterMotor = new SparkFlex(Constants.DriveConstants.kLeftShooterCanId, MotorType.kBrushless);
+  private final SparkFlex rightShooterMotor = new SparkFlex(Constants.DriveConstants.kRightShooterCanId, MotorType.kBrushless);
+
+  // private final SparkMax leftPulleyMotor = new SparkMax(Constants.DriveConstants.kLeftPulleyCanId, MotorType.kBrushless);
+  // private final SparkMax rightPulleyMotor = new SparkMax(Constants.DriveConstants.kRightPulleyCanId, MotorType.kBrushless);
+
+  // private final SparkFlex leftIntakeLifterMotor = new SparkFlex(Constants.DriveConstants.kLeftIntakeLifterCanId, MotorType.kBrushless);
+  // private final SparkFlex rightIntakeLifterMotor = new SparkFlex(Constants.DriveConstants.kRightIntakeLifterCanId, MotorType.kBrushless);
+  // private final SparkFlex intakeSpinnerMotor = new SparkFlex(Constants.DriveConstants.kIntakeSpinnerCanId, MotorType.kBrushless);
+
+  private final XboxController driverController = new XboxController(OIConstants.kDriverControllerPort);
+  private final Timer timer = new Timer();
 
   /** Called once at the beginning of the robot program. */
   public Robot() {
     leftShooterMotor.setInverted(true);
     rightShooterMotor.setInverted(false);
   }
-// here is the first Simple Autonomous Example
 
   /** This function is run once each time the robot enters autonomous mode. */
   @Override
   public void autonomousInit() {
-    m_timer.restart();
+    timer.restart();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     // Drive for 2 seconds
-    // if (m_timer.get() < 2.0) {
+    // if (timer.get() < 2.0) {
     //   // Drive forwards half speed, make sure to turn input squaring off
-    //   m_robotDrive.arcadeDrive(0.5, 0.0, false);
+    //   robotDrive.drive(0.5, 0.0, 0.0, false);
     // } else {
-    //   m_robotDrive.stopMotor(); // stop robot
+    //   robotDrive.drive(0.0, 0.0, 0.0, false);
+    //   robotDrive.stopMotor(); // stop robot
     // }
   }
 
@@ -71,9 +81,15 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
-    double shooterPower = m_controller.getLeftY();
-    leftShooterMotor.set(shooterPower);
-    rightShooterMotor.set(shooterPower);
+    // double shooterPower = driverController.getLeftY();
+    // leftShooterMotor.set(shooterPower);
+    // rightShooterMotor.set(shooterPower);
+
+    robotDrive.drive(
+                -MathUtil.applyDeadband(driverController.getLeftY(), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(driverController.getLeftX(), OIConstants.kDriveDeadband),
+                -MathUtil.applyDeadband(driverController.getRightX(), OIConstants.kDriveDeadband),
+                true);
   }
 
   /** This function is called once each time the robot enters test mode. */
