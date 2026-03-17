@@ -166,9 +166,11 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.resetEncoders();
   }
 
-  /** Zeroes the heading of the robot. */
+  /** Zeroes the heading of the robot. 
+   * The corret API is pigeon.setYaw(0) and not pigeon.rest().
+  */
   public void zeroHeading() {
-    pigeon.reset();
+    pigeon.setYaw(0); 
   }
 
   /**
