@@ -45,6 +45,13 @@ public final class Constants {
     public static final double kBackLeftChassisAngularOffset = Math.PI;
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
+  
+
+    /*For testing purposes, the intake left,right, and spinner CAN IDs have to 
+     * get eliminated once the IntakeConstants public static class is imported
+     * properly within the other subsystems and make sure it's working properly. 
+     */
+    
     // SPARK MAX CAN IDs
     public static final int kFrontLeftDrivingCanId = 1;
     public static final int kRearLeftDrivingCanId = 5;
@@ -68,6 +75,28 @@ public final class Constants {
 
     public static final boolean kGyroReversed = false;
   }
+   /*Starting today, we'll be splitting our subsystems classes. Each motors ID and positions
+    would be declared into its own public static classes, and then we can import those classes into
+    the subsystems that need them. 
+     */
+    // IntakeConstants (Imported in Intake.java)
+
+    public static class IntakeConstants {
+       
+      // CAN IDs for the intake subsystem motors
+      public static final int kLeftIntakeLifterCanId = 13;
+      public static final int kRightIntakeLifterCanId = 14;
+      public static final int kIntakeSpinnerCanId = 15;
+
+      // Positions for the intake lifter (Swing Mechanism)
+      public static final double extendMax = 5.0; // Maximum outwards extension. 
+      public static final double retractMax = 0.0; // Maximum inwards retraction. 
+
+      // Speeds for the intake lifter and spinner
+      public static final double kIntakeLifterSpeed = 0.2; // Test Speed for the intake lifter motors. 
+      public static final double kIntakeSpinnerSpeed = 0.5; // Test Speed for the intake spinner motor. 
+    }
+
 
   public static final class ModuleConstants {
     // The MAXSwerve module can be configured with one of three pinion gears: 12T,

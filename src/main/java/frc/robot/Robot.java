@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.Intake; 
 
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
@@ -43,9 +44,9 @@ public class Robot extends TimedRobot {
   private final SparkMax leftFeederMotor = new SparkMax(Constants.DriveConstants.kLeftFeederCanId, MotorType.kBrushless);
   private final SparkMax rightFeederMotor = new SparkMax(Constants.DriveConstants.kRightFeederCanId, MotorType.kBrushless);
 
-  private final SparkMax leftIntakeLifterMotor = new SparkMax(Constants.DriveConstants.kLeftIntakeLifterCanId, MotorType.kBrushless);
-  private final SparkMax rightIntakeLifterMotor = new SparkMax(Constants.DriveConstants.kRightIntakeLifterCanId, MotorType.kBrushless);
-  private final SparkMax intakeSpinnerMotor = new SparkMax(Constants.DriveConstants.kIntakeSpinnerCanId, MotorType.kBrushless);
+  // private final SparkMax leftIntakeLifterMotor = new SparkMax(Constants.DriveConstants.kLeftIntakeLifterCanId, MotorType.kBrushless);
+  // private final SparkMax rightIntakeLifterMotor = new SparkMax(Constants.DriveConstants.kRightIntakeLifterCanId, MotorType.kBrushless);
+  // private final SparkMax intakeSpinnerMotor = new SparkMax(Constants.DriveConstants.kIntakeSpinnerCanId, MotorType.kBrushless);
 
   private final XboxController driverController = new XboxController(OIConstants.kDriverControllerPort);
   private final XboxController operatorController = new XboxController(OIConstants.kOperatorControllerPort);
@@ -56,6 +57,10 @@ public class Robot extends TimedRobot {
   private static final String kLeftAuto = "Left Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
+  // Here's where we recall the intake subsystem from Intake.java class. 
+
+  Intake intake = new Intake(); 
 
   /*
    * Controls for One Controller:
@@ -96,8 +101,12 @@ public class Robot extends TimedRobot {
     leftFeederMotor.setInverted(true);
     rightFeederMotor.setInverted(false);
 
-    leftIntakeLifterMotor.setInverted(true);
-    rightIntakeLifterMotor.setInverted(false);
+    // Transfered to intake: 
+
+    // leftIntakeLifterMotor.setInverted(true);
+    // rightIntakeLifterMotor.setInverted(false);
+
+
   }
 
   /** This function is run once each time the robot enters autonomous mode. */
@@ -187,39 +196,30 @@ public class Robot extends TimedRobot {
     //   operator controller, D-Pad Up/Down
      if (driverController.getPOV() == 0) {
       // Lift intake
-      leftIntakeLifterMotor.set(0.5);
-      rightIntakeLifterMotor.set(0.5); 
+      intake.retractIntake(); 
     } else if (driverController.getPOV() == 180) {
       // Lower intake
-      leftIntakeLifterMotor.set(-0.5);
-      rightIntakeLifterMotor.set(-0.5); 
-    } else if (operatorController.getPOV() == 0) {
-      // Lift intake
-      leftIntakeLifterMotor.set(0.5);
-      rightIntakeLifterMotor.set(0.5); 
-    } else if (operatorController.getPOV() == 180) {
-      // Lower intake
-      leftIntakeLifterMotor.set(-0.5);
-      rightIntakeLifterMotor.set(-0.5); 
-    } else {
-      // Stop intake lifter motors
-      leftIntakeLifterMotor.set(0.0);
-      rightIntakeLifterMotor.set(0.0); 
+     intake.extendIntake();
+    } 
+    else {
+     intake.intakeRollersOff(); 
     }
+    
+   
 
-    // 2.b. Intake spinner:
-    //   driver controller, Y button
-    //   operator controller, Y button
-    if (driverController.getYButton()) {
-      // Engage spinner motor
-      intakeSpinnerMotor.set(0.5);
-    } else if (operatorController.getYButton()) {
-      // Engage spinner motor
-      intakeSpinnerMotor.set(0.5);
-    } else {
-      // Stop spinner motor
-      intakeSpinnerMotor.set(0.0);
-    }
+    // // 2.b. Intake spinner:
+    // //   driver controller, Y button
+    // //   operator controller, Y button
+    // if (driverController.getYButton()) {
+    //   // Engage spinner motor
+    //   intakeSpinnerMotor.set(0.5);
+    // } else if (operatorController.getYButton()) {
+    //   // Engage spinner motor
+    //   intakeSpinnerMotor.set(0.5);
+    // } else {
+    //   // Stop spinner motor
+    //   intakeSpinnerMotor.set(0.0);
+    // }
 
     // 3. Shooter:  operator controller, A button
     if (operatorController.getAButton()) {
