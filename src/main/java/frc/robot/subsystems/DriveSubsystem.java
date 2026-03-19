@@ -18,6 +18,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; 
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -43,7 +44,12 @@ public class DriveSubsystem extends SubsystemBase {
 
   // The gyro sensor
   // private final ADIS16470_IMU m_gyro = new ADIS16470_IMU();
-  private final Pigeon2 pigeon = new Pigeon2(0, "rio");
+  /*(deviceId: 0, "rio") is unnecessary since the imu is wired 
+   * along with the rest of the sparmax controllers to the CAN bus. 
+   * However, we need to make sure that we program it through the REV Client 2
+   * and set the CAN ID to 0, which is the default. 
+   */
+  private final Pigeon2 pigeon = new Pigeon2(0);
   /*
    * Replacing ADIS16470_IMU with Pigeon2 for better performance and reliability. The Pigeon2 provides more accurate heading information and is less susceptible to drift over time, which is crucial for maintaining precise control of the swerve drive system. The ADIS16470_IMU will be kept as a backup in case of any issues with the Pigeon2, but the primary gyro for this subsystem will be the Pigeon2.
    * Rotation2d.fromDegrees(m_gyro.getAngle(IMUAxis.kZ)) --> pigeon.getRotation2d() for heading information
@@ -78,6 +84,11 @@ public class DriveSubsystem extends SubsystemBase {
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
         });
+        /*This line would be able to display the piegon 2.0 gyro data in order to confirm
+         * that the gyro is working and providing accurate heading information. The "Yaw"
+         * value should change as the robot rotates. 
+         */
+        SmartDashboard.putNumber("Yaw",pigeon.getYaw().getValueAsDouble()); 
   }
 
   /**
