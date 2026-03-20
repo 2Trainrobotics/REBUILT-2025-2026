@@ -49,7 +49,7 @@ public class Intake extends SubsystemBase {
 
             lifterConfig
                 .idleMode(IdleMode.kBrake)
-                .smartCurrentLimit(30); // Set a smart current limit to prevent damage to the motors.
+                .smartCurrentLimit(30); // Set a smart current limit to prevent damage to the motors (30 amps).
 
             
            leftLifter.configure(
@@ -78,7 +78,14 @@ public class Intake extends SubsystemBase {
             leftLifterEncoder = leftLifter.getEncoder(); 
             rightLifterEncoder = rightLifter.getEncoder();
 
+            rightLifterEncoder.setPosition(0); 
+            leftLifterEncoder.setPosition(0);
+
             // Here, we configure the directions of the lifters' motors: 
+            /*Keep in mind that this api is not future proof and at any point with any new Sparkmax update and once this
+             * api gets phased out, this method will stop working and we'll have to research for a new method to set the direction
+             * of the motors. 
+             */
              leftLifter.setInverted(true);
              rightLifter.setInverted(false);
 
